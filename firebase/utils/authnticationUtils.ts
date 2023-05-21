@@ -7,7 +7,7 @@ export const registerUser = (email: string, password: string, username: string, 
     createUserWithEmailAndPassword(auth, email, password)
         .then((res) => {
             onSuccess&& onSuccess(res)
-            updateUser(username)
+            updateUser({displayName: username})
         })
         .catch((e) => {
             console.error(e.message)
@@ -35,9 +35,11 @@ export const getCurrentUser = (onSuccess?: (data: any) => void) => {
 }
 
 // update user information
-export const updateUser = (username: string) => {
+export const updateUser = async (userInfo: {}) => {
     if (auth.currentUser) {
-        updateProfile(auth.currentUser, {displayName: username})
+        await updateProfile(auth.currentUser, userInfo)
+    } else {
+        console.error('current user not found')
     }
 }
 
