@@ -1,4 +1,4 @@
-import { User, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { User, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth"
 import { auth } from "../config"
 import IUser from "@/interfaces/IUser"
 
@@ -39,4 +39,14 @@ export const updateUser = (username: string) => {
     if (auth.currentUser) {
         updateProfile(auth.currentUser, {displayName: username})
     }
+}
+
+// sign out function
+export const logoutUser = (onSuccess?: (data: any) => void) => {
+    signOut(auth).then((res) => {
+        onSuccess&& onSuccess(res)
+    })
+    .catch((e) => {
+        console.error(e)
+    })
 }
