@@ -1,5 +1,4 @@
 import { TextField } from '@mui/material'
-import { MuiOtpInput } from 'mui-one-time-password-input'
 import React from 'react'
 
 type Props = {
