@@ -34,7 +34,10 @@ const ProfileAvatar = () => {
           horizontal: 'left',
         }}
       >
-        <Button onClick={() => logoutUser(() => router.push('/'))} color='error' sx={{ p: 2 }}>Logout</Button>
+        <section className='flex flex-col'>
+          <Button onClick={() => router.push('/user/profile')} sx={{ p: 2 }}>Profile</Button>
+          <Button onClick={() => logoutUser(() => router.push('/'))} color='error' sx={{ p: 2 }}>Logout</Button>
+        </section>
       </Popover>
     </div>
   );
