@@ -1,6 +1,7 @@
 import React from 'react'
 import ProfileStatusCard from './ProfileStatusCard';
 import Link from 'next/link';
+import ProfileAvatar from './ProfileAvatar';
 
 type Props = {
     title: string;
@@ -19,6 +20,7 @@ const Header = ({idNumber, isCompletedProfile, name = 'Unknown', title, email}: 
         <section className='flex space-x-3'>
             {!isCompletedProfile&& <Link href='/user/profile'><ProfileStatusCard warning title='Complete Profile' subtitle='complete your profile to start voting' /></Link>}
             <span><Link href='/user/dashboard'><ProfileStatusCard title={`Welcome Back, ${name}`} subtitle={isCompletedProfile? idNumber: email} isCompletedProfile = {isCompletedProfile} /></Link></span>
+            <span><ProfileAvatar /></span>
         </section>
     </div>
   )
