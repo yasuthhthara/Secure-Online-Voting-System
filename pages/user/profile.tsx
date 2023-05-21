@@ -12,6 +12,7 @@ const profile = () => {
         getCurrentUser((user) => {
             setEmail(user.email)
             setUsername(user.displayName)
+            setUserID(user.uid)
         })
     }, [])
 
@@ -23,6 +24,7 @@ const profile = () => {
     const [mobile, setMobile] = useState<string>('');
     const [address, setAddress] = useState<string>('');
     const [email, setEmail] = useState<string>('');
+    const [userID, setUserID] = useState<string>('');
 
     const createUser = () => {
         const userInfo = {
@@ -33,10 +35,10 @@ const profile = () => {
             birthday: birthday,
             mobileNo: mobile,
             address: address,
-            email: email
+            email: email,
+            userID: userID
         }
-        // createData("Users", userInfo, (res) => console.log("Submitted"), (e) => console.error(e));
-        console.log(userInfo)
+        createData("Users", userInfo, (res) => console.log("Submitted"), (e) => console.error(e));
     }
 
     const { register, handleSubmit, formState: {errors} } = useForm<IProfileFormInputs>()
