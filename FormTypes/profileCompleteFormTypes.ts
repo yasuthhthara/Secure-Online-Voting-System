@@ -2,9 +2,9 @@ export interface IProfileFormInputs {
     "firstName": string;
     "lastName": string;
     "username": string;
-    "NIC": string;
-    "Birthday": string;
-    "Mobile": string;
-    "residentialAddress": string;
+    "nic": string;
+    "birthday": string;
+    "mobileNo": string;
+    "address": string;
     "emailAddress": string;
 }
