@@ -1,15 +1,31 @@
 import InputField from '@/Components/InputField'
+import MFA from '@/Components/MFA'
 import { IProfileFormInputs } from '@/FormTypes/profileCompleteFormTypes'
-import { getCurrentUser, verifyEmail } from '@/firebase/utils/authnticationUtils'
+import { enrollUser, getCurrentUser, updateUser, verifyEmail, verifyIfUserIsEnrolled, verifyPhoneNumber } from '@/firebase/utils/authnticationUtils'
 import { createData, getDataFromCollection } from '@/firebase/utils/databaseUtils'
+import useRecaptcha from '@/hooks/AuthenticationHooks/useRecaptcha'
 import PageLayout from '@/layouts/PageLayout'
 import { User } from 'firebase/auth'
+import { useRouter } from 'next/router'
 import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 const profile = () => {
 
+    const [fName, setFName] = useState<string>('');
+    const [lName, setFLame] = useState<string>('');
+    const [username, setUsername] = useState<string>('');
+    const [nic, setNIC] = useState<string>('');
+    const [birthday, setBirthday] = useState<string>('');
+    const [mobile, setMobile] = useState<string>('');
+    const [address, setAddress] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
+    const [userID, setUserID] = useState<string>('');
     const [user, setUser] = useState<User | null>(null);
+    const [verificationID, setVerificationID] = useState<string>('');
+    const [mfaPop, setMfaPop] = useState<boolean>(false);
+    const router = useRouter();
+    const recaptcha = useRecaptcha('profile-enroll');
 
     useEffect(() => {
         getCurrentUser((user) => {
@@ -37,16 +53,6 @@ const profile = () => {
         })
     }, [user])
 
-    const [fName, setFName] = useState<string>('');
-    const [lName, setFLame] = useState<string>('');
-    const [username, setUsername] = useState<string>('');
-    const [nic, setNIC] = useState<string>('');
-    const [birthday, setBirthday] = useState<string>('');
-    const [mobile, setMobile] = useState<string>('');
-    const [address, setAddress] = useState<string>('');
-    const [email, setEmail] = useState<string>('');
-    const [userID, setUserID] = useState<string>('');
-
     const createUser = () => {
         const userInfo = {
             firstName: fName,
@@ -60,6 +66,7 @@ const profile = () => {
             userID: userID
         }
         createData("Users", userInfo, (res) => console.log("Submitted"), (e) => console.error(e));
+        handleVerifyPhoneNumber();
     }
 
     const handleVerifyEmail = async () => {
@@ -73,6 +80,46 @@ const profile = () => {
             }).catch((e) => {
                 console.error(e.message)
             })
+        }
+    }
+
+    const handleVerifyPhoneNumber = async () => {
+        if (user) {
+            if (verifyIfUserIsEnrolled(user)) {
+              router.push('/vote')
+            } else {
+              if (user && recaptcha) {
+                  if (mobile != '') {
+                    const verifyID = await verifyPhoneNumber(user, mobile, recaptcha);
+                    if (verifyID) {
+                      setVerificationID(verifyID)
+                      setMfaPop(true)
+                    } else {
+                      console.error('verification ID not found')
+                    }
+                  } else {
+                    console.log(user.displayName)
+                    router.push('/user/profile');
+                  }
+              } else {
+                  console.error("Error");
+              }
+            }
+        } else {
+            console.error('User not found')
+        }
+    }
+
+    const handleVerificationComplete = async (code: string) => {
+        if (verificationID != '' && user) {
+          const isSuccess: boolean = await enrollUser(user, verificationID, code)
+          if (isSuccess) {
+            router.push('/vote');
+          } else {
+            console.error("Not matching")
+          }
+        } else {
+            console.error("cannot verify")
         }
     }
 
@@ -104,6 +151,8 @@ const profile = () => {
                     </form>
                 </div>
             </div>
+            <MFA onSubmit={(code) => handleVerificationComplete(code)} setOpen={setMfaPop} open = {mfaPop} />
+            <div id='profile-enroll'></div>
         </div>
     </PageLayout>
   )
