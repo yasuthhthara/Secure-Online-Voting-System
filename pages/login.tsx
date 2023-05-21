@@ -1,5 +1,8 @@
-import { loginUser } from '@/firebase/utils/authnticationUtils';
+import MFA from '@/Components/MFA';
+import { finaliseLoginEnrollment, loginUser, resolveSignIn } from '@/firebase/utils/authnticationUtils';
+import useRecaptcha from '@/hooks/AuthenticationHooks/useRecaptcha';
 import PageLayout from '@/layouts/PageLayout'
+import { MultiFactorResolver } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react'
@@ -10,11 +13,45 @@ const login = (props: Props) => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mfaPop, setMfaPop] = useState<boolean>(false);
+  const [verificationID, setVerificationID] = useState<string>('');
+  const [MFAResolver, setMFAResolver] = useState<MultiFactorResolver>();
 
   const router = useRouter()
+  const reCaptcha = useRecaptcha('sign-in');
+
+  const handleFirebaseMFA = async (error: any) => {
+    if (error.code == 'auth/multi-factor-auth-required' && reCaptcha) {
+      const data = await resolveSignIn(error, reCaptcha)
+
+      if (data) {
+        const {verificationID, resolver} = data;
+        setVerificationID(verificationID);
+        setMFAResolver(resolver);
+        setMfaPop(true);
+      } else {
+        console.error("Error")
+      }
+    } else {
+      console.error(error.message)
+    }
+  }
+
+  const onSubmitCode = (code: string) => {
+    if (MFAResolver) {
+      const isSuccess = finaliseLoginEnrollment(verificationID, MFAResolver, code);
+      if (isSuccess) {
+        router.push('/user/dashboard')
+      } else {
+        console.error('Verification Code Invalid')
+      }
+    } else {
+      console.error('resolver not found')
+    }
+  }
 
   const onLogin = () => {
-    loginUser(email, password, () => router.push('/user/dashboard'))
+    loginUser(email, password, () => router.push('/user/dashboard'), (e) => handleFirebaseMFA(e))
   }
 
   return (
@@ -44,6 +81,8 @@ const login = (props: Props) => {
             New to the system? <Link href="/">Register</Link>
           </span>
         </section>
+        <MFA onSubmit={(code) => onSubmitCode(code)} setOpen={setMfaPop} open = {mfaPop} />
+        <div id='sign-in'></div>
       </div>
     </PageLayout>
   );
