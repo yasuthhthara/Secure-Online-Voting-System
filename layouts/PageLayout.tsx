@@ -1,7 +1,8 @@
 import Header from '@/Components/Header'
-import { getCurrentUser } from '@/firebase/utils/authnticationUtils'
+import { getCurrentUser, verifyIfUserIsEnrolled } from '@/firebase/utils/authnticationUtils'
 import { getDataFromCollection } from '@/firebase/utils/databaseUtils'
 import IUser from '@/interfaces/IUser'
+import { User } from 'firebase/auth'
 import React, { useEffect, useState } from 'react'
 
 const PageLayout = ({children, title,}: {children: JSX.Element | string, title: string}) => {
@@ -12,7 +13,7 @@ const PageLayout = ({children, title,}: {children: JSX.Element | string, title: 
     });
   }, []);
 
-  const [user, setUser] = useState<IUser>();
+  const [user, setUser] = useState<User>();
   const [nic, setNIC] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
 
@@ -25,7 +26,9 @@ const PageLayout = ({children, title,}: {children: JSX.Element | string, title: 
       getDataFromCollection("Users").then((regUsers) => {
         regUsers.forEach((regUser: { userID: string | null | undefined, nic: string | null }) => {
           if(regUser.userID === user.uid) {
-            setIsCompleted(true)
+            if (user.emailVerified) {
+              setIsCompleted(true)
+            }
             setNIC(regUser.nic)
           }
         });
