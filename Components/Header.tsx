@@ -13,7 +13,7 @@ type Props = {
 
 const Header = ({idNumber, isCompletedProfile, name = 'Unknown', title, email}: Props) => {
   return (
-    <div className='flex justify-between items-center px-4 py-2'>
+    <div className='flex justify-between items-center px-4 py-2 bg-[#181818]'>
         <section>
             <span className='text-4xl font-semibold text-white'>{title}</span>
         </section>
