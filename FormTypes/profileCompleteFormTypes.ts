@@ -7,4 +7,5 @@ export interface IProfileFormInputs {
     "mobileNo": string;
     "address": string;
     "emailAddress": string;
+    "userID": string;
 }
