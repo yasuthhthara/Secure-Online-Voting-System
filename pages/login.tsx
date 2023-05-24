@@ -55,7 +55,7 @@ const login = (props: Props) => {
   }
 
   return (
-    <PageLayout title="Sign In">
+    <div className="h-screen flex-1 flex flex-col bg-[#101010]">
       <div className="flex flex-col h-full">
         <section className="flex flex-col items-center justify-center h-full space-y-4">
           <input
@@ -84,7 +84,7 @@ const login = (props: Props) => {
         <MFA onSubmit={(code) => onSubmitCode(code)} setOpen={setMfaPop} open = {mfaPop} />
         <div id='sign-in'></div>
       </div>
-    </PageLayout>
+    </div>
   );
 }
 
