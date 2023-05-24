@@ -21,7 +21,7 @@ export default function Home() {
   };
 
   return (
-    <PageLayout title="Registration">
+    <div className="h-screen flex-1 flex flex-col bg-[#101010]">
       <div className="flex flex-col h-full">
         <section className="flex flex-col items-center justify-center h-full space-y-4">
           <input
@@ -60,6 +60,6 @@ export default function Home() {
           </span>
         </section>
       </div>
-    </PageLayout>
+    </div>
   );
 }
