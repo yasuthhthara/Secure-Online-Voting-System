@@ -12,14 +12,16 @@ type Props = {
     error?: boolean;
     helperText: string;
     onChange?: (...params: any) => void;
-    register: UseFormRegister<IProfileFormInputs>;
+    register: UseFormRegister<any>;
     required?: boolean;
-    idLabel: Path<IProfileFormInputs>;
+    idLabel: Path<any>;
 }
 
 const InputField = ({helperText, label, register, required = false, type, error, multilined, onChange, placeholder, value, idLabel}: Props) => {
+
   return (
     <TextField
+      className='w-full'
       {...register(idLabel, { required })}
       label={label}
       value={value&& value}
