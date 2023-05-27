@@ -16,6 +16,7 @@ const dashboard = () => {
     const [mfaPop, setMfaPop] = useState<boolean>(false);
     const [verificationID, setVerificationID] = useState<string>('');
     const [sessions, setSessions] = useState<ISession[]>([]);
+
     const router = useRouter();
     const recaptcha = useRecaptcha('dashboard-enroll');
 
@@ -46,7 +47,6 @@ const dashboard = () => {
                   console.error('verification ID not found')
                 }
               } else {
-                console.log(user.displayName)
                 router.push('/user/profile');
               }
           } else {

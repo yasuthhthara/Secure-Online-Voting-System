@@ -1,3 +1,4 @@
+import Notification from '@/Components/Notification'
 import VoteCard from '@/Components/VoteCard'
 import { getCurrentUser } from '@/firebase/utils/authnticationUtils'
 import { getSingleDataFromCollection, updateFromCollection } from '@/firebase/utils/databaseUtils'
@@ -16,6 +17,10 @@ const VotingSession = (props: Props) => {
     const [votesUsed, setVotesUsed] = useState<number>(0);
     const [votedIndexes, setVotedIndexes] = useState<number[]>([]);
     const [user, setUser] = useState<User>();
+
+    const [notification, setNotification] = useState<{error: boolean, message: string}>();
+    const [appear, setAppear] = useState<boolean>(false);
+
     const router= useRouter();
 
     useEffect(() => {
@@ -54,7 +59,7 @@ const VotingSession = (props: Props) => {
             tempData.candidates[index].totalVotes = session.candidates[index].totalVotes + 1;
             tempData.candidates[index].votedIDs = [...session.candidates[index].votedIDs, user.uid]
 
-            updateFromCollection("Sessions", tempData, sessionID, () => alert('successfully voted to ' + session.candidates[index].name), (e) => {console.error(e); setVotesUsed(votesUsed - 1); setVotedIndexes(votedIndexes.filter(idx => idx != index));});
+            updateFromCollection("Sessions", tempData, sessionID, () => alert('successfully voted to ' + session.candidates[index].name), (e) => {setAppear(true); setNotification({error: true, message: e.message}); setVotesUsed(votesUsed - 1); setVotedIndexes(votedIndexes.filter(idx => idx != index));});
         }
     }
 
@@ -68,7 +73,7 @@ const VotingSession = (props: Props) => {
             tempData.candidates[index].totalVotes = session.candidates[index].totalVotes - 1;
             tempData.candidates[index].votedIDs = session.candidates[index].votedIDs.filter(id => id != user.uid)
             
-            updateFromCollection("Sessions", tempData, sessionID, () => alert('removed vote for ' + session.candidates[index].name), (e) => {console.error(e); setVotesUsed(votesUsed + 1); votedIndexes.push(index);});
+            updateFromCollection("Sessions", tempData, sessionID, () => alert('removed vote for ' + session.candidates[index].name), (e) => {setAppear(true); setNotification({error: true, message: e.message}); setVotesUsed(votesUsed + 1); votedIndexes.push(index);});
         }
     }
 
@@ -79,6 +84,7 @@ const VotingSession = (props: Props) => {
   return (
     <PageLayout title={session? session.name: 'Loading...'}>
         <div className='m-3 flex flex-col bg-gray-600/25 rounded-t-lg'>
+          <Notification appear = {appear} setAppear={setAppear} title={notification&& notification.message} error = {notification&& notification.error}  />
           <div className='flex justify-around p-2 text-xl font-medium text-white'>
             <span>Candidates</span>
             <span>Maximum Votes Per User: {session? session.maxVotes: 'Loading...'}</span>

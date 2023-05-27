@@ -1,5 +1,6 @@
 import InputField from '@/Components/InputField'
 import MFA from '@/Components/MFA'
+import Notification from '@/Components/Notification'
 import { IProfileFormInputs } from '@/FormTypes/profileCompleteFormTypes'
 import { enrollUser, getCurrentUser, updateUser, verifyEmail, verifyIfUserIsEnrolled, verifyPhoneNumber } from '@/firebase/utils/authnticationUtils'
 import { createData, getDataFromCollection } from '@/firebase/utils/databaseUtils'
@@ -24,6 +25,10 @@ const profile = () => {
     const [user, setUser] = useState<User | null>(null);
     const [verificationID, setVerificationID] = useState<string>('');
     const [mfaPop, setMfaPop] = useState<boolean>(false);
+    
+    const [notification, setNotification] = useState<{error: boolean, message: string}>();
+    const [appear, setAppear] = useState<boolean>(false);
+
     const router = useRouter();
     const recaptcha = useRecaptcha('profile-enroll');
 
@@ -49,7 +54,8 @@ const profile = () => {
                     setAddress(profileData.address)
                 })
             }).catch((e) => {
-                console.log(e.message)
+                setAppear(true);
+                setNotification({error: true, message: e.message});
         })
     }, [user]);
 
@@ -72,10 +78,11 @@ const profile = () => {
         }
         checkIDNumber(nic).then((res) => {
             if (res === 0) {
-                createData("Users", userInfo, (res) => console.log("Submitted"), (e) => console.error(e));
+                createData("Users", userInfo, (res) => {setAppear(true); setNotification({error: false, message: "Details Submitted!"})}, (e) => {setAppear(true); setNotification({error: true, message: e.message})});
                 handleVerifyPhoneNumber();
             } else {
-                console.error("Looks like you already have an account")
+                setNotification({error: true, message: "Looks like you already have an account"});
+                setAppear(true);
             }
         })
     }
@@ -86,10 +93,12 @@ const profile = () => {
                 if (res) {
                     alert("Verification email has been sent!")
                 } else {
-                    console.error("Cannot verify")
+                    setAppear(true);
+                    setNotification({error: true, message: "Cannot verify"})
                 }
             }).catch((e) => {
-                console.error(e.message)
+                setAppear(true);
+                setNotification({error: true, message: e.message});
             })
         }
     }
@@ -106,18 +115,20 @@ const profile = () => {
                       setVerificationID(verifyID)
                       setMfaPop(true)
                     } else {
-                      console.error('verification ID not found')
+                        setAppear(true);
+                        setNotification({error: true, message: "Cannot Verify Please Log Again!"});
                     }
                   } else {
-                    console.log(user.displayName)
                     router.push('/user/profile');
                   }
               } else {
-                  console.error("Error");
+                setAppear(true);
+                setNotification({error: true, message: "Recaptcha Failed! Try Again!"});
               }
             }
         } else {
-            console.error('User not found')
+            setAppear(true);
+            setNotification({error: true, message: "User Not Found! Please Log Again!"});
         }
     }
 
@@ -127,10 +138,12 @@ const profile = () => {
           if (isSuccess) {
             router.push('/user/dashboard');
           } else {
-            console.error("Not matching")
+            setAppear(true);
+            setNotification({error: true, message: "Invalid Code! Please Log Again!"});
           }
         } else {
-            console.error("cannot verify")
+            setAppear(true);
+            setNotification({error: true, message: "Cannot Verify Please Log Again!"});
         }
     }
 
@@ -139,6 +152,7 @@ const profile = () => {
   return (
     <PageLayout title='My Profile'>
         <div className='m-3 flex-col bg-gray-600/25 rounded-t-lg'>
+            <Notification appear = {appear} setAppear={setAppear} title={notification&& notification.message} error = {notification&& notification.error}  />
             <span className='flex p-2 justify-center text-xl font-medium text-white'>Profile Information</span>
             <div className='flex bg-gray-600/25 rounded-b-lg p-3'>
                 {/* Profile Photo and change button */}
@@ -156,9 +170,8 @@ const profile = () => {
                         <InputField error = {errors.address? true: false} register={register} required idLabel='address' onChange={(text) => setAddress(text)} value={address} label='Residential Address' type='text' helperText='This Field is Required' />
                         <InputField error = {errors.emailAddress? true: false} register={register} idLabel='emailAddress' onChange={(text) => setEmail(text)} value={email} label='Email Address' type='text' helperText='This Field is Required' />
                         <div className='pt-4 space-x-2 flex justify-end'>
-                            <button type='submit' className='py-2 text-white bg-blue-500 rounded-full px-7'>Submit Details</button>
-                            {user&& !user.emailVerified&& <button onClick={() => handleVerifyEmail()} type='button' className='py-2 text-white bg-red-700 rounded-full px-7'>Verify Email</button>}
-                            {user&& !verifyIfUserIsEnrolled(user)&& <button onClick={() => handleVerifyPhoneNumber()} type='button' className='py-2 text-white bg-red-700 rounded-full px-7'>Verify Phone Number</button>}
+                            {user&& !user.emailVerified? <button onClick={() => handleVerifyEmail()} type='button' className='py-2 text-white bg-red-700 rounded-full px-7'>Verify Email</button>: <button type='submit' className='py-2 text-white bg-blue-500 rounded-full px-7'>Submit Details</button>}
+                            {user&& !verifyIfUserIsEnrolled(user)&& mobile.length === 12 && mobile.substring(0, 3) === "+94"&& <button onClick={() => handleVerifyPhoneNumber()} type='button' className='py-2 text-white bg-red-700 rounded-full px-7'>Verify Phone Number</button>}
                         </div>
                     </form>
                 </div>

@@ -1,3 +1,4 @@
+import Notification from "@/Components/Notification";
 import { registerUser } from "@/firebase/utils/authnticationUtils";
 import PageLayout from "@/layouts/PageLayout";
 import Link from "next/link";
@@ -10,18 +11,23 @@ export default function Home() {
   const [password, setPassword] = useState("");
   const [passwordAgain, setPasswordAgain] = useState("");
 
+  const [notification, setNotification] = useState<{error: boolean, message: string}>();
+  const [appear, setAppear] = useState<boolean>(false);
+
   const router = useRouter()
 
   const onRegister = () => {
     if (password === passwordAgain) {
-      registerUser(email, password, username, () => router.push('/user/profile'));
+      registerUser(email, password, username, () => router.push('/user/profile'), (e) => {setAppear(true); setNotification({error: true, message: e.message})});
     } else {
-      console.error('cannot register')
+      setAppear(true);
+      setNotification({error: true, message: "Passwords are not matching!"});
     }
   };
 
   return (
     <div className="h-screen flex-1 flex flex-col bg-[#101010]">
+      <Notification appear = {appear} setAppear={setAppear} title={notification&& notification.message} error = {notification&& notification.error}  />
       <div className="flex flex-col h-full">
         <section className="flex flex-col items-center justify-center h-full space-y-4">
           <input

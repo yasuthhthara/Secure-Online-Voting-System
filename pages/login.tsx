@@ -1,7 +1,7 @@
 import MFA from '@/Components/MFA';
+import Notification from '@/Components/Notification';
 import { finaliseLoginEnrollment, loginUser, resolveSignIn } from '@/firebase/utils/authnticationUtils';
 import useRecaptcha from '@/hooks/AuthenticationHooks/useRecaptcha';
-import PageLayout from '@/layouts/PageLayout'
 import { MultiFactorResolver } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -17,6 +17,9 @@ const login = (props: Props) => {
   const [verificationID, setVerificationID] = useState<string>('');
   const [MFAResolver, setMFAResolver] = useState<MultiFactorResolver>();
 
+  const [notification, setNotification] = useState<{error: boolean, message: string}>();
+  const [appear, setAppear] = useState<boolean>(false);
+
   const router = useRouter()
   const reCaptcha = useRecaptcha('sign-in');
 
@@ -30,10 +33,12 @@ const login = (props: Props) => {
         setMFAResolver(resolver);
         setMfaPop(true);
       } else {
-        console.error("Error")
+        setAppear(true);
+        setNotification({error: true, message: "Cannot Resolve! Please Log Again!"});
       }
     } else {
-      console.error(error.message)
+      setAppear(true);
+      setNotification({error: true, message: error.message});
     }
   }
 
@@ -43,10 +48,12 @@ const login = (props: Props) => {
       if (isSuccess) {
         router.push('/user/dashboard')
       } else {
-        console.error('Verification Code Invalid')
+        setAppear(true);
+        setNotification({error: true, message: "Verification Code Invalid!"});
       }
     } else {
-      console.error('resolver not found')
+      setAppear(true);
+      setNotification({error: true, message: "Cannot Resolve! Please Try Again!"});
     }
   }
 
@@ -56,6 +63,7 @@ const login = (props: Props) => {
 
   return (
     <div className="h-screen flex-1 flex flex-col bg-[#101010]">
+      <Notification appear = {appear} setAppear={setAppear} title={notification&& notification.message} error = {notification&& notification.error}  />
       <div className="flex flex-col h-full">
         <section className="flex flex-col items-center justify-center h-full space-y-4">
           <input
