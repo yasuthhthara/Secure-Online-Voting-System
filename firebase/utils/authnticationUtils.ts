@@ -3,14 +3,14 @@ import { auth } from "../config"
 import IUser from "@/interfaces/IUser"
 
 // register user
-export const registerUser = async (email: string, password: string, username: string, onSuccess?: (data: any) => void) => {
+export const registerUser = async (email: string, password: string, username: string, onSuccess?: (data: any) => void, onError?: (data: any) => void) => {
     await createUserWithEmailAndPassword(auth, email, password)
         .then(async (res) => {
             onSuccess&& onSuccess(res)
             await updateUser({displayName: username})
         })
         .catch((e) => {
-            console.error(e.message)
+            onError&& onError(e)
         })
 }
 

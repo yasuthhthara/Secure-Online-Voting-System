@@ -1,6 +1,7 @@
 import CandidateSelectionCard from '@/Components/CandidateSelectionCard'
 import CommonButton from '@/Components/CommonButton'
 import InputField from '@/Components/InputField'
+import Notification from '@/Components/Notification'
 import { IProfileFormInputs } from '@/FormTypes/profileCompleteFormTypes'
 import { SessionInputs } from '@/FormTypes/sessionInputs'
 import { createData, getDataFromCollection } from '@/firebase/utils/databaseUtils'
@@ -19,6 +20,9 @@ const CreateSession = () => {
     const [description, setDescription] = useState<string>('');
     const [candidates, setCandidates] = useState<ICandidate[]>([]);
     const [allUsers, setAllUsers] = useState<IProfileFormInputs[]>([]);
+
+    const [notification, setNotification] = useState<{error: boolean, message: string}>();
+    const [appear, setAppear] = useState<boolean>(false);
 
     useEffect(() => {
         getDataFromCollection("Users").then((res) => {
@@ -39,12 +43,13 @@ const CreateSession = () => {
             candidates: candidates
         }
 
-        createData("Sessions", data, () => router.push('/user/dashboard'), (e) => console.error(e));
+        createData("Sessions", data, () => router.push('/user/dashboard'), (e) => {setAppear(true); setNotification({error: true, message: e.message});});
     }
 
   return (
     <PageLayout title='Create Session'>
         <form onSubmit={handleSubmit(onCreate)} className='flex justify-center items-center h-full'>
+            <Notification appear = {appear} setAppear={setAppear} title={notification&& notification.message} error = {notification&& notification.error}  />
             <section className='flex flex-col w-3/5 space-y-6'>
                 <InputField type='text' error={errors.sessionName? true: false} register={register} idLabel='sessionName' label='Session Name' helperText='this field is required' required value={sessionName} onChange={(text) => setSessionName(text)} />
                 <section className='w-full flex justify-between space-x-6'>
