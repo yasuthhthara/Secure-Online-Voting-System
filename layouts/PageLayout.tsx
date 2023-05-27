@@ -26,8 +26,8 @@ const PageLayout = ({children, title,}: {children: JSX.Element | string, title: 
       getDataFromCollection("Users").then((regUsers) => {
         regUsers.forEach((regUser: { userID: string | null | undefined, nic: string | null }) => {
           if(regUser.userID === user.uid) {
-            if (user.emailVerified) {
-              setIsCompleted(true)
+            if (user.emailVerified && verifyIfUserIsEnrolled(user)) {
+              setIsCompleted(true);
             }
             setNIC(regUser.nic)
           }
