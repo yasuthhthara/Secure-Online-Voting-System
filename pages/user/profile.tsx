@@ -51,7 +51,12 @@ const profile = () => {
             }).catch((e) => {
                 console.log(e.message)
         })
-    }, [user])
+    }, [user]);
+
+    const checkIDNumber = async (id: string): Promise<number> => {
+        const usersList: IProfileFormInputs[] = await getDataFromCollection("Users");
+        return usersList.filter(usr => usr.nic === id).length
+    }
 
     const createUser = () => {
         const userInfo = {
@@ -65,15 +70,21 @@ const profile = () => {
             email: email,
             userID: userID
         }
-        createData("Users", userInfo, (res) => console.log("Submitted"), (e) => console.error(e));
-        handleVerifyPhoneNumber();
+        checkIDNumber(nic).then((res) => {
+            if (res === 0) {
+                createData("Users", userInfo, (res) => console.log("Submitted"), (e) => console.error(e));
+                handleVerifyPhoneNumber();
+            } else {
+                console.error("Looks like you already have an account")
+            }
+        })
     }
 
     const handleVerifyEmail = async () => {
         if(user) {
             verifyEmail(user).then((res: boolean) => {
                 if (res) {
-                    console.log(res)
+                    alert("Verification email has been sent!")
                 } else {
                     console.error("Cannot verify")
                 }
@@ -114,7 +125,7 @@ const profile = () => {
         if (verificationID != '' && user) {
           const isSuccess: boolean = await enrollUser(user, verificationID, code)
           if (isSuccess) {
-            router.push('/vote');
+            router.push('/user/dashboard');
           } else {
             console.error("Not matching")
           }
@@ -147,6 +158,7 @@ const profile = () => {
                         <div className='pt-4 space-x-2 flex justify-end'>
                             <button type='submit' className='py-2 text-white bg-blue-500 rounded-full px-7'>Submit Details</button>
                             {user&& !user.emailVerified&& <button onClick={() => handleVerifyEmail()} type='button' className='py-2 text-white bg-red-700 rounded-full px-7'>Verify Email</button>}
+                            {user&& !verifyIfUserIsEnrolled(user)&& <button onClick={() => handleVerifyPhoneNumber()} type='button' className='py-2 text-white bg-red-700 rounded-full px-7'>Verify Phone Number</button>}
                         </div>
                     </form>
                 </div>
