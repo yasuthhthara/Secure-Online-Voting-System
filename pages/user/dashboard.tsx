@@ -72,8 +72,8 @@ const dashboard = () => {
     }
 
   return (
-    <PageLayout title={user?.uid === 'wkxCvZIGUAe6Akx4ze7oXgWE3ov2'? 'Admin Dashboard': 'Dashboard'}>
-        {user?.uid != 'wkxCvZIGUAe6Akx4ze7oXgWE3ov2'?
+    <PageLayout title={user?.uid === 'UXeFlR4Z69f1IvnMrImu0JkVV4c2'? 'Admin Dashboard': 'Dashboard'}>
+        {user?.uid != 'UXeFlR4Z69f1IvnMrImu0JkVV4c2'?
         <div className='m-3 flex flex-col bg-gray-600/25 rounded-t-lg'>
           <div className='flex p-2 justify-center text-xl font-medium text-white'>Active Sessions</div>
           <div className='space-y-2 px-2 py-4'>
