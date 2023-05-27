@@ -61,7 +61,7 @@ const CreateSession = () => {
                         <span className='flex-1 flex justify-center'>ID Number</span>
                     </div>
                     {allUsers.map((user) => (
-                        <CandidateSelectionCard onToggle={(isTrue) => {isTrue? setCandidates([...candidates, {name: `${user.firstName} ${user.lastName}`,userID: user.userID, totalVotes: 0}]): null}} name={`${user.firstName} ${user.lastName}`} idNumber={user.nic} mobile={user.mobileNo} key={user.nic} />
+                        <CandidateSelectionCard onToggle={(isTrue) => {isTrue? setCandidates([...candidates, {name: `${user.firstName} ${user.lastName}`,userID: user.userID, totalVotes: 0, votedIDs: []}]): null}} name={`${user.firstName} ${user.lastName}`} idNumber={user.nic} mobile={user.mobileNo} key={user.nic} />
                     ))}
                 </section>
                 <section className='flex w-full justify-end'>

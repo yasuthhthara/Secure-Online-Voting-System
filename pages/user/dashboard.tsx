@@ -62,7 +62,7 @@ const dashboard = () => {
       if (verificationID != '' && user) {
         const isSuccess: boolean = await enrollUser(user, verificationID, code)
         if (isSuccess) {
-          router.push('/vote');
+          router.push('/user/dashboard');
         } else {
           console.error("Not matching")
         }
@@ -76,7 +76,13 @@ const dashboard = () => {
         {user?.uid != 'wkxCvZIGUAe6Akx4ze7oXgWE3ov2'?
         <div className='m-3 flex flex-col bg-gray-600/25 rounded-t-lg'>
           <div className='flex p-2 justify-center text-xl font-medium text-white'>Active Sessions</div>
-          <button onClick={() => handleVote()}>Start vote</button>
+          <div className='space-y-2 px-2 py-4'>
+            {sessions.map((session, idx) => (
+                <SessionCard key={idx} description={session.description} name={session.name} endDate={session.endDate} startDate={session.startDate}>
+                  <CommonButton title='Start Voting' type='button' onClick={() => router.push(`/sessions/voting/${session.id}`)} />
+                </SessionCard>
+            ))}
+          </div>
           <MFA onSubmit={(code) => handleSubmit(code)} setOpen={setMfaPop} open = {mfaPop} />
           <div id='dashboard-enroll'></div>
         </div>: 
@@ -89,7 +95,9 @@ const dashboard = () => {
               </div>
               <div className='space-y-2 px-2 py-4'>
                 {sessions.map((session, idx) => (
-                  <SessionCard key={idx} description={session.description} name={session.name} endDate={session.endDate} startDate={session.startDate} />
+                  <SessionCard key={idx} description={session.description} name={session.name} endDate={session.endDate} startDate={session.startDate} >
+                    <CommonButton title='View Results' type='button' onClick={() => router.push('/sessions/results/' + session.id)} />
+                  </SessionCard>
                 ))}
               </div>
             </section>

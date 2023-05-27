@@ -5,10 +5,10 @@ type Props = {
     description: string;
     endDate: Date;
     startDate: Date;
-    onEdit?: () => void;
+    children?: JSX.Element | React.ReactElement
 }
 
-const SessionCard = ({description, endDate, name, startDate, onEdit}: Props) => {
+const SessionCard = ({description, endDate, name, startDate, children}: Props) => {
 
     const dateConvert = (date: Date) => {
         return new Date(date.seconds * 1000 + date.nanoseconds / 1000000);
@@ -19,6 +19,9 @@ const SessionCard = ({description, endDate, name, startDate, onEdit}: Props) => 
         <div className='text-2xl text-white font-semibold text-left'>{name}</div>
         <div className='py-2 px-2 text-white/40'>{description}</div>
         <div className='pb-2 text-white/70 text-right'>{new Date() >= dateConvert(startDate)? `Ending on ${dateConvert(endDate).toDateString()}`: `Starting on ${dateConvert(startDate).toDateString()}`}</div>
+        <section className='w-full'>
+          {children}
+        </section>
     </div>
   )
 }
